@@ -5,70 +5,70 @@ Train::Train() : first(nullptr), countOp(0) {}
 
 Train::~Train() {
   if (!first) return;
-  Car* current = first->next;
-  while (current != first) {
-    Car* temp = current;
-    current = current->next;
-    delete temp;
+  Car* cur = first->next;
+  while (cur != first) {
+    Car* toDel = cur;
+    cur = cur->next;
+    delete toDel;
   }
   delete first;
 }
 
 void Train::addCar(bool light) {
-  Car* newCar = new Car(light);
+  Car* c = new Car(light);
   if (!first) {
-    first = newCar;
-    first->next = first;
-    first->prev = first;
+    first = c;
   } else {
     Car* last = first->prev;
-    last->next = newCar;
-    newCar->prev = last;
-    newCar->next = first;
-    first->prev = newCar;
+    last->next = c;
+    c->prev = last;
+    c->next = first;
+    first->prev = c;
   }
 }
 
-int64_t Train::getLength() {
+std::size_t Train::getLength() {
   countOp = 0;
   if (!first) return 0;
 
-  const Car* ptr = first;
-  bool lightFound = false;
+  const Car* p = first;
+  bool hasOn = false;
   do {
-    if (ptr->light) {
-      lightFound = true;
+    if (p->light) {
+      hasOn = true;
       break;
     }
-    ptr = ptr->next;
-  } while (ptr != first);
+    p = p->next;
+  } while (p != first);
 
-  if (!lightFound) {
-    first->light = true;
-    const Car* walker = first->next;
+  if (!hasOn) {
+    first->light = !first->light;
+    const Car* cur = first->next;
     ++countOp;
-    int64_t length = 1;
-    while (walker != first) {
-      walker = walker->next;
+    std::size_t len = 1;
+    while (cur != first) {
+      cur = cur->next;
       ++countOp;
-      ++length;
+      ++len;
     }
-    for (int64_t i = 0; i < length; ++i) {
-      walker = walker->prev;
+    for (std::size_t i = 0; i < len; ++i) {
+      cur = cur->prev;
       ++countOp;
     }
-    first->light = false;
-    return length;
+    first->light = !first->light;
+    return len;
   } else {
-    const Car* walker = first->next;
-    ++countOp;
-    int64_t length = 1;
-    while (walker != first) {
-      walker = walker->next;
-      ++countOp;
-      ++length;
-    }
-    countOp += length * length;
-    return length;
+    const Car* cur = first->next;
+++countOp;
+std::size_t len = 1;
+while (cur != first) {
+  cur = cur->next;
+  ++countOp;
+  ++len;
+}
+countOp += len * len;
+return len;
   }
 }
+
+std::size_t Train::getOpCount() const { return countOp; }
