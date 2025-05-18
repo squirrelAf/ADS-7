@@ -1,74 +1,61 @@
 // Copyright 2021 NNTU-CS
 #include "train.h"
-
-Train::Train() : first(nullptr), countOp(0) {}
-
-Train::~Train() {
-  if (!first) return;
-  Car* current = first->next;
-  while (current != first) {
-    Car* temp = current;
-    current = current->next;
-    delete temp;
-  }
-  delete first;
-}
+#include "train.h"
+Train::Train() : countOp(0), first(nullptr) {}
 
 void Train::addCar(bool light) {
-  Car* newCar = new Car(light);
+  Car* newTrainCar = new Car{light, nullptr, nullptr};
   if (!first) {
-    first = newCar;
+    first = newTrainCar;
     first->next = first;
     first->prev = first;
   } else {
-    Car* last = first->prev;
-    last->next = newCar;
-    newCar->prev = last;
-    newCar->next = first;
-    first->prev = newCar;
+    Car* lastTrainCar = first->prev;
+    lastTrainCar->next = newTrainCar;
+    newTrainCar->prev = lastTrainCar;
+    newTrainCar->next = first;
+    first->prev = newTrainCar;
   }
 }
 
-int64_t Train::getLength() {
-  countOp = 0;
+int Train::getLength() {
   if (!first) return 0;
 
-  const Car* ptr = first;
-  bool lightFound = false;
-  do {
-    if (ptr->light) {
-      lightFound = true;
+  Car* currentTrainCar = first;
+  if (!currentTrainCar->light) {
+    currentTrainCar->light = true;
+  }
+
+  int trainLength = 0;
+  while (true) {
+    int traversalSteps = 0;
+    while (true) {
+      currentTrainCar = currentTrainCar->next;
+      traversalSteps++;
+      countOp++;
+      if (currentTrainCar->light || currentTrainCar == first) break;
+    }
+
+    if (currentTrainCar == first && !currentTrainCar->light) break;
+
+    if (currentTrainCar->light) {
+      currentTrainCar->light = false;
+    }
+
+    for (int i = 0; i < traversalSteps; i++) {
+      currentTrainCar = currentTrainCar->prev;
+      countOp++;
+    }
+
+    if (!currentTrainCar->light) {
+      trainLength = traversalSteps;
       break;
     }
-    ptr = ptr->next;
-  } while (ptr != first);
-
-  if (!lightFound) {
-    first->light = true;
-    const Car* walker = first->next;
-    ++countOp;
-    int64_t length = 1;
-    while (walker != first) {
-      walker = walker->next;
-      ++countOp;
-      ++length;
-    }
-    for (int64_t i = 0; i < length; ++i) {
-      walker = walker->prev;
-      ++countOp;
-    }
-    first->light = false;
-    return length;
-  } else {
-    const Car* walker = first->next;
-    ++countOp;
-    int64_t length = 1;
-    while (walker != first) {
-      walker = walker->next;
-      ++countOp;
-      ++length;
-    }
-    countOp += length * length;
-    return length;
   }
+
+  return trainLength;
+}
+
+int Train::getOpCount() {
+  return countOp;
 }
