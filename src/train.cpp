@@ -1,6 +1,5 @@
 // Copyright 2021 NNTU-CS
 #include "train.h"
-#include "train.h"
 Train::Train() : countOp(0), first(nullptr) {}
 
 void Train::addCar(bool light) {
