@@ -3,7 +3,7 @@
 #include "train.h"
 
 int main() {
-  Train train;
+ Train train;
   int count = 60; // кол-во вагонов
 
   while (count--)
